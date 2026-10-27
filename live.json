@@ -19,10 +19,10 @@
   "558557": {
     "status": "IN_PLAY",
     "score": {
-      "winner": "DRAW",
+      "winner": "HOME_TEAM",
       "duration": "REGULAR",
       "fullTime": {
-        "home": 0,
+        "home": 1,
         "away": 0
       },
       "halfTime": {
@@ -36,10 +36,10 @@
   "558555": {
     "status": "IN_PLAY",
     "score": {
-      "winner": "AWAY_TEAM",
+      "winner": "HOME_TEAM",
       "duration": "REGULAR",
       "fullTime": {
-        "home": 0,
+        "home": 2,
         "away": 1
       },
       "halfTime": {
