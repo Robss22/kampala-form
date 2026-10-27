@@ -1,1 +1,53 @@
-{}
+{
+  "558556": {
+    "status": "FINISHED",
+    "score": {
+      "winner": "AWAY_TEAM",
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": 2,
+        "away": 6
+      },
+      "halfTime": {
+        "home": 2,
+        "away": 4
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-27T17:30:00Z"
+  },
+  "558557": {
+    "status": "IN_PLAY",
+    "score": {
+      "winner": "DRAW",
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": 0,
+        "away": 0
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-27T19:45:00Z"
+  },
+  "558555": {
+    "status": "IN_PLAY",
+    "score": {
+      "winner": "AWAY_TEAM",
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": 0,
+        "away": 1
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-27T19:45:00Z"
+  }
+}
