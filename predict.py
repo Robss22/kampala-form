@@ -1,8 +1,7 @@
 
 import requests, json, time, os
 from datetime import date, timedelta
-
-API_TOKEN = "353d56db7a164ec5ba55abf02a1f3fef" # keep your token in quotes
+API_TOKEN = os.getenv("FOOTBALL_TOKEN")
 headers = {"X-Auth-Token": API_TOKEN}
 
 def get_last5_goals_count(team_id):
