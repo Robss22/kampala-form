@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kampala Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .market-pill {
+        display: inline-block;
+        white-space: normal;
+        line-height: 1.2;
+        word-break: break-word;
+        max-width: 140px;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 p-2">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4">
+      <div class="text-center">
+        <h1 class="text-2xl font-black tracking-wide">SMART STATS UG</h1>
+        <p class="text-sm text-gray-500 mt-1">Max 3 Picks Daily</p>
+        <p id="date" class="text-xs text-gray-400 mt-1"></p>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <button
+          id="btnToday"
+          class="bg-black text-white px-4 py-2 rounded-full text-sm"
+        >
+          Today
+        </button>
+        <button id="btnHist" class="bg-gray-200 px-4 py-2 rounded-full text-sm">
+          History
+        </button>
+      </div>
+
+      <div id="todaySection" class="mt-5">
+        <div class="overflow-x-auto rounded-xl border">
+          <table class="w-full text-sm table-fixed">
+            <thead class="bg-gray-900 text-white">
+              <tr>
+                <th class="text-left p-3 w-[28%]">Match</th>
+                <th class="text-left p-3 w-[12%]">Time</th>
+                <th class="text-left p-3 w-[18%]">Market</th>
+                <th class="text-left p-3 w-[22%]">Stats</th>
+                <th class="text-left p-3 w-[8%]">Odds</th>
+                <th class="text-left p-3 w-[12%]">Result</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="histSection" class="hidden mt-5">
+        <div class="overflow-x-auto rounded-xl border">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-900 text-white">
+              <tr>
+                <th class="p-3 text-left">Date</th>
+                <th class="p-3 text-left">Match</th>
+                <th class="p-3 text-left">Score</th>
+                <th class="p-3 text-left">Result</th>
+              </tr>
+            </thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 mt-6 text-xs">
+        <b>18+ ONLY.</b> Stats only. No guarantee.
+      </div>
+    </div>
+
+    <script>
+      function badge(market, isLow) {
+        let label = "Over 1.5 Goals";
+        if (isLow) label = "Over 1.5";
+        return `<span class="market-pill bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">${label}</span>`;
+      }
+      function resultBadge(r, score) {
+        if (r == "WON")
+          return `<span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">${score || ""} WON</span>`;
+        if (r == "LOST")
+          return `<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">${score || ""} LOST</span>`;
+        return `<span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">PENDING</span>`;
+      }
+
+      fetch("picks.json")
+        .then((r) => r.json())
+        .then((d) => {
+          document.getElementById("date").innerText = "Date: " + d.date;
+          const tbody = document.getElementById("tableBody");
+          tbody.innerHTML = "";
+          d.picks.forEach((p) => {
+            const isLow = p.market.includes("Low Filter");
+            tbody.innerHTML += `<tr class="hover:bg-gray-50">
+   <td class="p-3 font-bold text-[13px]">${p.match}</td>
+   <td class="p-3 text-xs">${p.time}</td>
+   <td class="p-3">${badge(p.market, isLow)}</td>
+   <td class="p-3 text-xs text-gray-600">${isLow ? '<span class="text-orange-600 font-bold">Low filter - bet small</span><br>' : ""}${p.stat}<br><span class="text-gray-400">${p.probability}</span></td>
+   <td class="p-3 text-xs font-bold">${p.odds_range}</td>
+   <td class="p-3">${resultBadge(p.result, p.final_score)}</td>
+  </tr>`;
+          });
+        });
+
+      fetch("history.json")
+        .then((r) => r.json())
+        .then((all) => {
+          const hbody = document.getElementById("histBody");
+          hbody.innerHTML = "";
+          all.forEach((day) => {
+            day.picks.forEach((p) => {
+              hbody.innerHTML += `<tr><td class="p-3 text-xs">${day.date}</td><td class="p-3 text-xs font-bold">${p.match}</td><td class="p-3 text-xs">${p.final_score || "-"}</td><td class="p-3">${resultBadge(p.result)}</td></tr>`;
+            });
+          });
+        });
+
+      document.getElementById("btnToday").onclick = () => {
+        document.getElementById("todaySection").classList.remove("hidden");
+        document.getElementById("histSection").classList.add("hidden");
+      };
+      document.getElementById("btnHist").onclick = () => {
+        document.getElementById("todaySection").classList.add("hidden");
+        document.getElementById("histSection").classList.remove("hidden");
+      };
+    </script>
+  </body>
+</html>
