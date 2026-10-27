@@ -27,7 +27,7 @@
 <p>Tap match to view live score - All times EAT (Kampala)</p>
 <p id="dateText">Loading...</p>
 <div class="tabs">
-<button id="tToday" class="tab active" onclick="switchTab('today')">Today (3)</button>
+<button id="tToday" class="tab active" onclick="switchTab('today')">Today (0)</button>
 <button id="tHist" class="tab" onclick="switchTab('history')">History</button>
 </div>
 </div>
@@ -50,18 +50,10 @@ let picksData=[], liveData={};
 function toEAT(utcStr){
   try{
     if(!utcStr) return "";
-    // utcStr like "17:30" or "2026-10-27T17:30:00Z"
-    let h,m;
     if(utcStr.includes('T')){
       let d=new Date(utcStr);
-      // Convert to EAT UTC+3
-      d.setHours(d.getHours()+3);
-      h=d.getHours(); m=d.getMinutes();
-      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} EAT`;
-    } else {
-      let parts=utcStr.split(':');
-      h=parseInt(parts[0]); m=parseInt(parts[1]);
-      h=(h+3)%24;
+      let h=d.getUTCHours()+3; let m=d.getUTCMinutes();
+      if(h>=24) h-=24;
       return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} EAT`;
     }
   }catch(e){ return utcStr+" EAT"; }
@@ -71,6 +63,7 @@ async function load(){
  const data=await r.json();
  picksData=data.picks||[];
  document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT • Times EAT';
+ document.getElementById('tToday').innerText=`Today (${picksData.length})`;
  renderToday(data);
  loadLive();
  setInterval(loadLive, 60000);
@@ -81,11 +74,13 @@ function renderToday(data){
  cont.innerHTML=data.picks.map(p=>{
   const res=(p.result||'PENDING').toUpperCase();
   const eat=toEAT(p.time||p.utcDate||'');
+  const conf = p.confidence ?? p.percent ?? p.winPercent ?? p.probability ?? 80;
+  const detail = p.formDetail || p.explanation || p.analysis || p.reason || p.stats || '';
   return `<div class="card" onclick="openLive(${p.id})">
-   <div class="head"><div class="match">${p.match}</div><div class="badge">${p.market}</div></div>
-   <div class="meta"><span>${eat} • Tap for live</span><span>${p.probability||''}</span></div>
-   <div class="stats">${p.stats||p.reason||''}</div>
-   <div class="foot"><div class="odds">${p.odds||p.odds_range||'1.30'}</div><div class="result ${res}" id="live-${p.id}">${res}</div></div>
+   <div class="head"><div class="match">${p.match}</div><div class="badge">${p.market||p.prediction||'Over 1.5 Goals'}</div></div>
+   <div class="meta"><span>${eat} • Tap for live</span><span style="font-weight:700;color:#0f172a">${conf}%</span></div>
+   <div class="stats">${detail}</div>
+   <div class="foot"><div class="odds">${p.odds||'1.25-1.40'}</div><div class="result ${res}" id="live-${p.id}">${res}</div></div>
   </div>`;
  }).join('');
 }
@@ -116,22 +111,23 @@ function openLive(id){
  const scoreDiv=document.getElementById('modalScore');
  const minuteDiv=document.getElementById('modalMinute');
  const infoDiv=document.getElementById('modalInfo');
- 
+ const detail = p.formDetail || p.explanation || p.analysis || p.reason || p.stats || '';
+ const conf = p.confidence ?? p.percent ?? 80;
  if(!m){
   statusDiv.innerText='⏰ Waiting for live update'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Live score appears after kickoff.`;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>${conf}%</b> - ${detail}`;
  } else if(m.status=='FINISHED'){
   const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0; const total=h+a;
   const result = total>=2 ? '✅ WON - Over 1.5 HIT!' : '❌ LOST';
-  statusDiv.innerText='✅ FINISHED TODAY'; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`FT • ${eat}`;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>FT:</b> ${h}-${a} (Total ${total})<br><b style="font-size:15px">${result}</b>`;
+  statusDiv.innerText='✅ FINISHED'; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`FT • ${eat}`;
+  infoDiv.innerHTML=`<b>FT:</b> ${h}-${a} (Total ${total})<br><b>${result}</b><br>${detail}`;
  } else if(m.status=='IN_PLAY' || m.status=='PAUSED'){
   const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
-  statusDiv.innerText=`🔴 LIVE - ${m.status}`; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`${m.minute||''} • ${eat}`;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Live Total:</b> ${h+a}<br>${(h+a)>=2?'✅ Winning now!':'Needs more goals'}`;
+  statusDiv.innerText=`🔴 LIVE`; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`${m.minute||''} • ${eat}`;
+  infoDiv.innerHTML=`<b>Live Total:</b> ${h+a}<br>${(h+a)>=2?'✅ Winning now!':'Needs more goals'}<br>${detail}`;
  } else {
-  statusDiv.innerText='⏰ Not started yet - Today'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Kickoff ${eat}. Live appears at kickoff.`;
+  statusDiv.innerText='⏰ Not started yet'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
+  infoDiv.innerHTML=`<b>${conf}%</b> - ${detail}<br><br>Kickoff ${eat}`;
  }
  document.getElementById('liveModal').classList.add('show');
 }
