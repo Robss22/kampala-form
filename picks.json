@@ -1,61 +1,32 @@
 {
-  "date": "2026-10-28",
+  "date": "2026-10-27",
   "picks": [
     {
-      "id": 558549,
-      "match": "Milan vs Bologna",
-      "home": "AC Milan",
-      "away": "Bologna FC 1909",
+      "id": 558555,
+      "match": "Roma vs Cagliari",
       "competition": "Serie A",
-      "utcDate": "2026-10-28T17:30:00Z",
-      "status": "TIMED",
-      "prediction": "Over 1.5 Goals",
-      "confidence": 82
+      "utcDate": "2026-10-27T19:45:00Z",
+      "time": "2026-10-27T19:45:00Z",
+      "prediction": "Over 1.5",
+      "tip": "Over 1.5",
+      "pick": "Over 1.5",
+      "market": "Over 1.5",
+      "odds": 1.3,
+      "odd": 1.3
     },
     {
-      "id": 558550,
-      "match": "Venezia FC vs Inter",
-      "home": "Venezia FC",
-      "away": "FC Internazionale Milano",
+      "id": 558557,
+      "match": "Torino vs Como 1907",
       "competition": "Serie A",
-      "utcDate": "2026-10-28T17:30:00Z",
-      "status": "TIMED",
-      "prediction": "Over 1.5 Goals",
-      "confidence": 82
-    },
-    {
-      "id": 558553,
-      "match": "Parma vs Udinese",
-      "home": "Parma Calcio 1913",
-      "away": "Udinese Calcio",
-      "competition": "Serie A",
-      "utcDate": "2026-10-28T17:30:00Z",
-      "status": "TIMED",
-      "prediction": "Over 1.5 Goals",
-      "confidence": 82
-    },
-    {
-      "id": 558552,
-      "match": "Genoa vs Juventus",
-      "home": "Genoa CFC",
-      "away": "Juventus FC",
-      "competition": "Serie A",
-      "utcDate": "2026-10-28T19:45:00Z",
-      "status": "TIMED",
-      "prediction": "Over 1.5 Goals",
-      "confidence": 82
-    },
-    {
-      "id": 558554,
-      "match": "Monza vs Napoli",
-      "home": "AC Monza",
-      "away": "SSC Napoli",
-      "competition": "Serie A",
-      "utcDate": "2026-10-28T19:45:00Z",
-      "status": "TIMED",
-      "prediction": "Over 1.5 Goals",
-      "confidence": 82
+      "utcDate": "2026-10-27T19:45:00Z",
+      "time": "2026-10-27T19:45:00Z",
+      "prediction": "Over 1.5",
+      "tip": "Over 1.5",
+      "pick": "Over 1.5",
+      "market": "Over 1.5",
+      "odds": 1.3,
+      "odd": 1.3
     }
   ],
-  "generated_at": "2026-10-27T20:17:08.050556"
+  "generated_at": "2026-10-27T20:25:17.959797"
 }
