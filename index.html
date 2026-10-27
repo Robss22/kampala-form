@@ -5,166 +5,120 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SMART STATS UG</title>
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;background:#f8fafc;color:#0f172a}
-  .top{text-align:center;padding:22px 14px 10px}
-  .top h1{margin:0;font-size:26px;letter-spacing:-0.5px;font-weight:800}
-  .top p{margin:6px 0;color:#64748b;font-size:14px}
-  .tabs{display:flex;justify-content:center;gap:8px;margin:14px 0}
-  .tab{border:none;padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;background:#e2e8f0;cursor:pointer}
-  .tab.active{background:#0f172a;color:#fff}
-  .wrap{max-width:560px;margin:0 auto;padding:0 12px 30px}
-  .card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7}
-  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .match{font-weight:800;font-size:15px;line-height:1.25;flex:1}
-  .badge{white-space:nowrap;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:#16a34a}
-  .meta{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#475569}
-  .stats{margin-top:10px;background:#f1f5f9;border-radius:10px;padding:10px;font-size:13px;line-height:1.4;color:#334155}
-  .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-  .odds{font-weight:800}
-  .result{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800}
-  .PENDING{background:#fef9c3;color:#854d0e}
-  .WON{background:#dcfce7;color:#166534}
-  .LOST{background:#fee2e2;color:#991b1b}
-  .empty{text-align:center;color:#94a3b8;padding:40px 0}
-  .history-date{font-weight:700;margin:18px 4px 8px;font-size:13px;color:#475569}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Arial;background:#f8fafc;color:#0f172a}
+.top{text-align:center;padding:20px 14px 10px}.top h1{margin:0;font-size:26px;font-weight:800}.top p{margin:5px 0;color:#64748b;font-size:14px}
+.tabs{display:flex;justify-content:center;gap:8px;margin:12px 0}.tab{border:none;padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;background:#e2e8f0;cursor:pointer}.tab.active{background:#0f172a;color:#fff}
+.wrap{max-width:560px;margin:0 auto;padding:0 12px 30px}
+.card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7;cursor:pointer;transition:0.2s}.card:active{transform:scale(0.98)}
+.head{display:flex;justify-content:space-between;gap:10px}.match{font-weight:800;font-size:15px;flex:1}.badge{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:#0ea5e9;white-space:nowrap}
+.meta{margin-top:8px;font-size:12px;color:#64748b;display:flex;justify-content:space-between}
+.stats{margin-top:10px;background:#f1f5f9;border-radius:10px;padding:10px;font-size:13px;color:#334155}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.odds{font-weight:800;font-size:14px}
+.result{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800}.PENDING{background:#fef9c3;color:#854d0e}.WON{background:#dcfce7;color:#166534}.LOST{background:#fee2e2;color:#991b1b}.LIVE{background:#ef4444;color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:0.7}100%{opacity:1}}
+.empty{text-align:center;color:#94a3b8;padding:40px 0}
+/* Modal */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99;justify-content:center;align-items:center;padding:20px}
+.modal.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:20px;max-width:400px;width:100%;text-align:center}
+.modal-box h2{margin:0 0 10px;font-size:18px}
+.score{font-size:36px;font-weight:900;margin:15px 0}
 </style>
 </head>
 <body>
 <div class="top">
-  <h1>SMART STATS UG</h1>
-  <p>Max 3 Picks Daily</p>
-  <p id="dateText">Loading...</p>
-  <div class="tabs">
-    <button id="tToday" class="tab active" onclick="switchTab('today')">Today</button>
-    <button id="tHist" class="tab" onclick="switchTab('history')">History</button>
-  </div>
+<h1>SMART STATS UG</h1>
+<p>Tap match to view live score</p>
+<p id="dateText">Loading...</p>
+<div class="tabs">
+<button id="tToday" class="tab active" onclick="switchTab('today')">Today (3)</button>
+<button id="tHist" class="tab" onclick="switchTab('history')">History</button>
+</div>
+</div>
+<div class="wrap">
+<div id="today"></div>
+<div id="history" style="display:none"></div>
 </div>
 
-<div class="wrap">
-  <div id="today"></div>
-  <div id="history" style="display:none"></div>
+<div id="liveModal" class="modal" onclick="closeModal()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h2 id="modalMatch">Match</h2>
+<div id="modalStatus" style="color:#64748b;font-size:13px">Loading...</div>
+<div class="score" id="modalScore">- : -</div>
+<div id="modalMinute" style="font-weight:700">--</div>
+<div id="modalInfo" style="margin-top:12px;font-size:13px;background:#f1f5f9;padding:10px;border-radius:10px"></div>
+<button onclick="closeModal()" style="margin-top:15px;width:100%;padding:12px;border-radius:12px;border:none;background:#0f172a;color:#fff;font-weight:700">Close</button>
+</div>
 </div>
 
 <script>
-let loadedData = null;
+let picksData=[], liveData={};
 
 async function load(){
-  try{
-    const res = await fetch('./picks.json?v=' + Date.now());
-    const data = await res.json();
-    loadedData = data;
-    document.getElementById('dateText').innerText = 'Date: ' + (data.date || new Date().toISOString().slice(0,10));
-    renderToday(data);
-    renderHistory(data);
-  }catch(e){
-    document.getElementById('today').innerHTML = '<div class="empty">Failed to load. Refresh.</div>';
-  }
+ const r=await fetch('./picks.json?v='+Date.now());
+ const data=await r.json();
+ picksData=data.picks||[];
+ document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT';
+ renderToday(data);
+ loadLive();
+ setInterval(loadLive, 60000);
 }
-
 function renderToday(data){
-  const cont = document.getElementById('today');
-  if(!data.picks || data.picks.length===0){
-    cont.innerHTML = '<div class="empty">No picks for today yet.<br>Check back at 10 AM EAT</div>';
-    return;
-  }
-  cont.innerHTML = data.picks.map(p=>{
-    const res = (p.result || p.status || 'PENDING').toUpperCase();
-    const time = p.time || p.kickoff || '';
-    const market = p.market || p.pick || 'Over 1.5 Goals';
-    const stats = p.stats || p.reason || p.analysis || 'Selected based on last 10 form';
-    const odds = p.odds || p.odd || '1.30';
-    const match = p.match || p.fixture || 'Match';
-    return `
-    <div class="card" onclick="openLive(${p.id||0}, '${match.replace(/'/g,"")}')" style="cursor:pointer">
-      <div class="head">
-        <div class="match">${match}</div>
-        <div class="badge">${market}</div>
-      </div>
-      <div class="meta">
-        <span>${time} UTC • Click to view live</span>
-        <span>Pick: <b>${market}</b></span>
-      </div>
-      <div class="stats">${stats}</div>
-      <div class="foot">
-        <div class="odds">${odds}</div>
-        <div class="result ${res}" id="live-${p.id}">${res}</div>
-      </div>
-    </div>`;
-  }).join('');
-  loadLive();
+ const cont=document.getElementById('today');
+ if(!data.picks||data.picks.length==0){cont.innerHTML='<div class="empty">No picks yet - check 10AM</div>';return;}
+ cont.innerHTML=data.picks.map(p=>{
+  const res=(p.result||'PENDING').toUpperCase();
+  return `<div class="card" onclick="openLive(${p.id})">
+   <div class="head"><div class="match">${p.match}</div><div class="badge">${p.market}</div></div>
+   <div class="meta"><span>${p.time} • Tap for live</span><span>${p.probability||''}</span></div>
+   <div class="stats">${p.stats||p.reason||''}</div>
+   <div class="foot"><div class="odds">${p.odds||p.odds_range||'1.30'}</div><div class="result ${res}" id="live-${p.id}">${res}</div></div>
+  </div>`;
+ }).join('');
 }
-
 async function loadLive(){
-  try{
-    const r=await fetch('./live.json?v='+Date.now());
-    const live=await r.json();
-    for(let id in live){
-      const m=live[id];
-      const el=document.getElementById('live-'+id);
-      if(!el) continue;
-      if(m.status=='IN_PLAY' || m.status=='LIVE'){
-        const home=m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? 0;
-        const away=m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? 0;
-        el.innerText=`LIVE ${home}-${away} ${m.minute||''}'`;
-        el.className='result WON';
-        el.style.background='#ef4444';
-        el.style.color='#fff';
-      } else if(m.status=='FINISHED'){
-        const home=m.score?.fullTime?.home ?? 0;
-        const away=m.score?.fullTime?.away ?? 0;
-        el.innerText=`FT ${home}-${away}`;
-      }
-    }
-  }catch(e){}
-}
-
-function openLive(id, matchName){
-  if(!id) return alert(matchName + "\n\nLive score will appear here when match starts.\nAuto-updates every 10 mins.");
-  fetch('./live.json?v='+Date.now()).then(r=>r.json()).then(live=>{
-    const m=live[String(id)];
-    if(!m || m.status=='TIMED' || m.status=='SCHEDULED'){
-      alert(matchName + "\n\n⏰ Not started yet\nKickoff: check time\n\nYou will see LIVE score here automatically when it starts.");
-    } else {
-      const s=m.score?.fullTime || m.score?.halfTime || {};
-      alert(matchName + `\n\nStatus: ${m.status}\nMinute: ${m.minute||'-'}\nScore: ${s.home??0} - ${s.away??0}\n\nAuto-updating every 10 mins`);
-    }
-  });
-}
-
-function renderHistory(data){
-  const cont = document.getElementById('history');
-  let hist = data.history;
-  // try load history.json if present
-  fetch('./history.json?v='+Date.now()).then(r=>r.json()).then(h=>{
-    if(h && h.length>0) buildHistory(h);
-  }).catch(()=>{ if(hist) buildHistory(hist); });
-
-  function buildHistory(list){
-    if(!list || list.length===0){ cont.innerHTML='<div class="empty">No history yet</div>'; return;}
-    let html='';
-    list.slice().reverse().slice(0,30).forEach(day=>{
-      const picks = day.picks || day.games || [];
-      html += `<div class="history-date">${day.date}</div>`;
-      picks.forEach(p=>{
-        const res = (p.result||'PENDING').toUpperCase();
-        html += `<div class="card" style="margin:6px 0">
-          <div class="head"><div class="match" style="font-size:14px">${p.match}</div><div class="result ${res}">${res}</div></div>
-        </div>`;
-      });
-    });
-    cont.innerHTML = html;
+ try{
+  const r=await fetch('./live.json?v='+Date.now());
+  liveData=await r.json();
+  for(let id in liveData){
+   const m=liveData[id]; const el=document.getElementById('live-'+id);
+   if(!el) continue;
+   if(m.status=='IN_PLAY' || m.status=='PAUSED' || m.status=='LIVE'){
+    const sc=m.score?.fullTime||m.score?.halfTime||{}; const h=sc.home??m.score?.fullTime?.home??0; const a=sc.away??m.score?.fullTime?.away??0;
+    el.innerText=`LIVE ${h}-${a} ${m.minute||''}'`; el.className='result LIVE';
+   } else if(m.status=='FINISHED'){
+    const sc=m.score?.fullTime||{}; el.innerText=`FT ${sc.home??0}-${sc.away??0}`;
+   }
   }
+ }catch(e){}
 }
-
-function switchTab(t){
-  document.getElementById('today').style.display = t==='today'?'block':'none';
-  document.getElementById('history').style.display = t==='history'?'block':'none';
-  document.getElementById('tToday').className = t==='today'?'tab active':'tab';
-  document.getElementById('tHist').className = t==='history'?'tab active':'tab';
-  if(t==='history' && loadedData) renderHistory(loadedData);
+function openLive(id){
+ const p=picksData.find(x=>x.id==id); if(!p) return;
+ const m=liveData[String(id)];
+ document.getElementById('modalMatch').innerText=p.match;
+ const statusDiv=document.getElementById('modalStatus');
+ const scoreDiv=document.getElementById('modalScore');
+ const minuteDiv=document.getElementById('modalMinute');
+ const infoDiv=document.getElementById('modalInfo');
+ 
+ if(!m || m.status=='TIMED' || m.status=='SCHEDULED'){
+  statusDiv.innerText='⏰ Not started yet'; scoreDiv.innerText='- : -'; minuteDiv.innerText=p.time;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Live score will show here automatically when match kicks off.`;
+ } else {
+  const sc=m.score?.fullTime||m.score?.halfTime||{}; const ft=m.score?.fullTime||{};
+  statusDiv.innerText=`Status: ${m.status}`; scoreDiv.innerText=`${ft.home??sc.home??0} : ${ft.away??sc.away??0}`; minuteDiv.innerText=m.minute?`Minute ${m.minute}'`:'';
+  const total=(ft.home||0)+(ft.away||0);
+  const win=total>=2?'✅ WON - Over 1.5 Goals HIT!':'❌ Needs more goals';
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Total Goals:</b> ${total}<br><b>${m.status=='FINISHED'?win:'Live status'}</b><br><br>Auto-updates every 10 mins`;
+ }
+ document.getElementById('liveModal').classList.add('show');
 }
-
+function closeModal(){document.getElementById('liveModal').classList.remove('show');}
+function switchTab(t){document.getElementById('today').style.display=t=='today'?'block':'none';document.getElementById('history').style.display=t=='history'?'block':'none';document.getElementById('tToday').className=t=='today'?'tab active':'tab';document.getElementById('tHist').className=t=='history'?'tab active':'tab'; if(t=='history') loadHistory();}
+async function loadHistory(){
+ const c=document.getElementById('history');
+ try{const r=await fetch('./history.json?v='+Date.now());const h=await r.json();let html='';h.slice(0,7).forEach(day=>{html+=`<div style="font-weight:700;margin:16px 4px 6px;font-size:13px">${day.date}</div>`;(day.picks||[]).forEach(p=>{html+=`<div class="card" style="cursor:default"><div class="head"><div class="match" style="font-size:14px">${p.match}</div><div class="result ${p.result||'PENDING'}">${p.result||'PENDING'}</div></div></div>`;});});c.innerHTML=html||'<div class="empty">No history</div>';}catch(e){c.innerHTML='<div class="empty">No history yet</div>';}
+}
 load();
 </script>
 </body>
