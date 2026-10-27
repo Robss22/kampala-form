@@ -1,132 +1,133 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Kampala Form</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .market-pill {
-        display: inline-block;
-        white-space: normal;
-        line-height: 1.2;
-        word-break: break-word;
-        max-width: 140px;
-      }
-    </style>
-  </head>
-  <body class="bg-slate-100 p-2">
-    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4">
-      <div class="text-center">
-        <h1 class="text-2xl font-black tracking-wide">SMART STATS UG</h1>
-        <p class="text-sm text-gray-500 mt-1">Max 3 Picks Daily</p>
-        <p id="date" class="text-xs text-gray-400 mt-1"></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMART STATS UG</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;background:#f8fafc;color:#0f172a}
+  .top{text-align:center;padding:22px 14px 10px}
+  .top h1{margin:0;font-size:26px;letter-spacing:-0.5px;font-weight:800}
+  .top p{margin:6px 0;color:#64748b;font-size:14px}
+  .tabs{display:flex;justify-content:center;gap:8px;margin:14px 0}
+  .tab{border:none;padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;background:#e2e8f0;cursor:pointer}
+  .tab.active{background:#0f172a;color:#fff}
+  .wrap{max-width:560px;margin:0 auto;padding:0 12px 30px}
+  .card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .match{font-weight:800;font-size:15px;line-height:1.25;flex:1}
+  .badge{white-space:nowrap;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:#16a34a}
+  .meta{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#475569}
+  .stats{margin-top:10px;background:#f1f5f9;border-radius:10px;padding:10px;font-size:13px;line-height:1.4;color:#334155}
+  .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .odds{font-weight:800}
+  .result{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800}
+  .PENDING{background:#fef9c3;color:#854d0e}
+  .WON{background:#dcfce7;color:#166534}
+  .LOST{background:#fee2e2;color:#991b1b}
+  .empty{text-align:center;color:#94a3b8;padding:40px 0}
+  .history-date{font-weight:700;margin:18px 4px 8px;font-size:13px;color:#475569}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>SMART STATS UG</h1>
+  <p>Max 3 Picks Daily</p>
+  <p id="dateText">Loading...</p>
+  <div class="tabs">
+    <button id="tToday" class="tab active" onclick="switchTab('today')">Today</button>
+    <button id="tHist" class="tab" onclick="switchTab('history')">History</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="today"></div>
+  <div id="history" style="display:none"></div>
+</div>
+
+<script>
+let loadedData = null;
+
+async function load(){
+  try{
+    const res = await fetch('./picks.json?v=' + Date.now());
+    const data = await res.json();
+    loadedData = data;
+    document.getElementById('dateText').innerText = 'Date: ' + (data.date || new Date().toISOString().slice(0,10));
+    renderToday(data);
+    renderHistory(data);
+  }catch(e){
+    document.getElementById('today').innerHTML = '<div class="empty">Failed to load. Refresh.</div>';
+  }
+}
+
+function renderToday(data){
+  const cont = document.getElementById('today');
+  if(!data.picks || data.picks.length===0){
+    cont.innerHTML = '<div class="empty">No picks for today yet.<br>Check back at 10 AM EAT</div>';
+    return;
+  }
+  cont.innerHTML = data.picks.map(p=>{
+    const res = (p.result || p.status || 'PENDING').toUpperCase();
+    const time = p.time || p.kickoff || '';
+    const market = p.market || p.pick || 'Over 1.5 Goals';
+    const stats = p.stats || p.reason || p.analysis || 'Selected based on last 10 form';
+    const odds = p.odds || p.odd || '1.30';
+    const match = p.match || p.fixture || (p.home && p.away ? p.home+' vs '+p.away : 'Match');
+    return `
+    <div class="card">
+      <div class="head">
+        <div class="match">${match}</div>
+        <div class="badge">${market}</div>
       </div>
-
-      <div class="flex gap-2 mt-4">
-        <button
-          id="btnToday"
-          class="bg-black text-white px-4 py-2 rounded-full text-sm"
-        >
-          Today
-        </button>
-        <button id="btnHist" class="bg-gray-200 px-4 py-2 rounded-full text-sm">
-          History
-        </button>
+      <div class="meta">
+        <span>${time} UTC</span>
+        <span>Pick: <b>${market}</b></span>
       </div>
-
-      <div id="todaySection" class="mt-5">
-        <div class="overflow-x-auto rounded-xl border">
-          <table class="w-full text-sm table-fixed">
-            <thead class="bg-gray-900 text-white">
-              <tr>
-                <th class="text-left p-3 w-[28%]">Match</th>
-                <th class="text-left p-3 w-[12%]">Time</th>
-                <th class="text-left p-3 w-[18%]">Market</th>
-                <th class="text-left p-3 w-[22%]">Stats</th>
-                <th class="text-left p-3 w-[8%]">Odds</th>
-                <th class="text-left p-3 w-[12%]">Result</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody" class="divide-y"></tbody>
-          </table>
-        </div>
+      <div class="stats">${stats}</div>
+      <div class="foot">
+        <div class="odds">${odds}</div>
+        <div class="result ${res}">${res}</div>
       </div>
+    </div>`;
+  }).join('');
+}
 
-      <div id="histSection" class="hidden mt-5">
-        <div class="overflow-x-auto rounded-xl border">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-900 text-white">
-              <tr>
-                <th class="p-3 text-left">Date</th>
-                <th class="p-3 text-left">Match</th>
-                <th class="p-3 text-left">Score</th>
-                <th class="p-3 text-left">Result</th>
-              </tr>
-            </thead>
-            <tbody id="histBody"></tbody>
-          </table>
-        </div>
-      </div>
+function renderHistory(data){
+  const cont = document.getElementById('history');
+  let hist = data.history;
+  // try load history.json if present
+  fetch('./history.json?v='+Date.now()).then(r=>r.json()).then(h=>{
+    if(h && h.length>0) buildHistory(h);
+  }).catch(()=>{ if(hist) buildHistory(hist); });
 
-      <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 mt-6 text-xs">
-        <b>18+ ONLY.</b> Stats only. No guarantee.
-      </div>
-    </div>
+  function buildHistory(list){
+    if(!list || list.length===0){ cont.innerHTML='<div class="empty">No history yet</div>'; return;}
+    let html='';
+    list.slice().reverse().slice(0,30).forEach(day=>{
+      const picks = day.picks || day.games || [];
+      html += `<div class="history-date">${day.date}</div>`;
+      picks.forEach(p=>{
+        const res = (p.result||'PENDING').toUpperCase();
+        html += `<div class="card" style="margin:6px 0">
+          <div class="head"><div class="match" style="font-size:14px">${p.match}</div><div class="result ${res}">${res}</div></div>
+        </div>`;
+      });
+    });
+    cont.innerHTML = html;
+  }
+}
 
-    <script>
-      function badge(market, isLow) {
-        let label = "Over 1.5 Goals";
-        if (isLow) label = "Over 1.5";
-        return `<span class="market-pill bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">${label}</span>`;
-      }
-      function resultBadge(r, score) {
-        if (r == "WON")
-          return `<span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">${score || ""} WON</span>`;
-        if (r == "LOST")
-          return `<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">${score || ""} LOST</span>`;
-        return `<span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">PENDING</span>`;
-      }
+function switchTab(t){
+  document.getElementById('today').style.display = t==='today'?'block':'none';
+  document.getElementById('history').style.display = t==='history'?'block':'none';
+  document.getElementById('tToday').className = t==='today'?'tab active':'tab';
+  document.getElementById('tHist').className = t==='history'?'tab active':'tab';
+  if(t==='history' && loadedData) renderHistory(loadedData);
+}
 
-      fetch("picks.json")
-        .then((r) => r.json())
-        .then((d) => {
-          document.getElementById("date").innerText = "Date: " + d.date;
-          const tbody = document.getElementById("tableBody");
-          tbody.innerHTML = "";
-          d.picks.forEach((p) => {
-            const isLow = p.market.includes("Low Filter");
-            tbody.innerHTML += `<tr class="hover:bg-gray-50">
-   <td class="p-3 font-bold text-[13px]">${p.match}</td>
-   <td class="p-3 text-xs">${p.time}</td>
-   <td class="p-3">${badge(p.market, isLow)}</td>
-   <td class="p-3 text-xs text-gray-600">${isLow ? '<span class="text-orange-600 font-bold">Low filter - bet small</span><br>' : ""}${p.stat}<br><span class="text-gray-400">${p.probability}</span></td>
-   <td class="p-3 text-xs font-bold">${p.odds_range}</td>
-   <td class="p-3">${resultBadge(p.result, p.final_score)}</td>
-  </tr>`;
-          });
-        });
-
-      fetch("history.json")
-        .then((r) => r.json())
-        .then((all) => {
-          const hbody = document.getElementById("histBody");
-          hbody.innerHTML = "";
-          all.forEach((day) => {
-            day.picks.forEach((p) => {
-              hbody.innerHTML += `<tr><td class="p-3 text-xs">${day.date}</td><td class="p-3 text-xs font-bold">${p.match}</td><td class="p-3 text-xs">${p.final_score || "-"}</td><td class="p-3">${resultBadge(p.result)}</td></tr>`;
-            });
-          });
-        });
-
-      document.getElementById("btnToday").onclick = () => {
-        document.getElementById("todaySection").classList.remove("hidden");
-        document.getElementById("histSection").classList.add("hidden");
-      };
-      document.getElementById("btnHist").onclick = () => {
-        document.getElementById("todaySection").classList.add("hidden");
-        document.getElementById("histSection").classList.remove("hidden");
-      };
-    </script>
-  </body>
+load();
+</script>
+</body>
 </html>
