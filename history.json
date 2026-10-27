@@ -1,0 +1,31 @@
+[
+  {
+    "date": "2026-10-27",
+    "picks": [
+      {
+        "match": "US Sassuolo Calcio vs SS Lazio",
+        "time": "17:30 UTC",
+        "market": "Over 1.5 Goals",
+        "stat": "Last 10 combined: 0/10 had 2+ goals",
+        "probability": "0%",
+        "odds_range": "1.25-1.40"
+      },
+      {
+        "match": "AS Roma vs Cagliari Calcio",
+        "time": "19:45 UTC",
+        "market": "Over 1.5 Goals",
+        "stat": "Last 10 combined: 0/10 had 2+ goals",
+        "probability": "0%",
+        "odds_range": "1.25-1.40"
+      },
+      {
+        "match": "Torino FC vs Como 1907",
+        "time": "19:45 UTC",
+        "market": "Over 1.5 Goals",
+        "stat": "Last 10 combined: 0/10 had 2+ goals",
+        "probability": "0%",
+        "odds_range": "1.25-1.40"
+      }
+    ]
+  }
+]
