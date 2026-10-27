@@ -1,12 +1,14 @@
 name: Daily Picks Update
 on:
   schedule:
-    - cron: '0 7 * * *' # 7am UTC = 10am Kampala
-  workflow_dispatch: # allows manual run button
+    - cron: '0 7 * * *'
+  workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -17,8 +19,8 @@ jobs:
         env:
           FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
       - run: |
-          git config user.name "bot"
-          git config user.email "bot@kampala.com"
-          git add picks.json history.json history/
-          git commit -m "auto update $(date)" || echo "no changes"
+          git config user.name "Robss22"
+          git config user.email "robss22@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "auto update $(date -u)"
           git push
