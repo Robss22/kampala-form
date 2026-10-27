@@ -1,0 +1,24 @@
+name: Daily Picks Update
+on:
+  schedule:
+    - cron: '0 7 * * *' # 7am UTC = 10am Kampala
+  workflow_dispatch: # allows manual run button
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install requests
+      - run: python predict.py
+        env:
+          FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
+      - run: |
+          git config user.name "bot"
+          git config user.email "bot@kampala.com"
+          git add picks.json history.json history/
+          git commit -m "auto update $(date)" || echo "no changes"
+          git push
