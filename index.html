@@ -9,7 +9,7 @@
 .top{text-align:center;padding:20px 14px 10px}.top h1{margin:0;font-size:26px;font-weight:800}.top p{margin:5px 0;color:#64748b;font-size:14px}
 .tabs{display:flex;justify-content:center;gap:8px;margin:12px 0}.tab{border:none;padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;background:#e2e8f0;cursor:pointer}.tab.active{background:#0f172a;color:#fff}
 .wrap{max-width:560px;margin:0 auto;padding:0 12px 30px}
-.card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7;cursor:pointer;transition:0.2s}.card:active{transform:scale(0.98)}
+.card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7;cursor:pointer}
 .head{display:flex;justify-content:space-between;gap:10px}.match{font-weight:800;font-size:15px;flex:1}.badge{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:#0ea5e9;white-space:nowrap}
 .meta{margin-top:8px;font-size:12px;color:#64748b;display:flex;justify-content:space-between}
 .stats{margin-top:10px;background:#f1f5f9;border-radius:10px;padding:10px;font-size:13px;color:#334155}
@@ -17,18 +17,14 @@
 .result{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800}.PENDING{background:#fef9c3;color:#854d0e}.WON{background:#dcfce7;color:#166534}.LOST{background:#fee2e2;color:#991b1b}.LIVE{background:#ef4444;color:#fff;animation:pulse 1.5s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:0.7}100%{opacity:1}}
 .empty{text-align:center;color:#94a3b8;padding:40px 0}
-/* Modal */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99;justify-content:center;align-items:center;padding:20px}
-.modal.show{display:flex}
-.modal-box{background:#fff;border-radius:20px;padding:20px;max-width:400px;width:100%;text-align:center}
-.modal-box h2{margin:0 0 10px;font-size:18px}
-.score{font-size:36px;font-weight:900;margin:15px 0}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99;justify-content:center;align-items:center;padding:20px}.modal.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:20px;max-width:400px;width:100%;text-align:center}.modal-box h2{margin:0 0 10px;font-size:18px}.score{font-size:36px;font-weight:900;margin:15px 0}
 </style>
 </head>
 <body>
 <div class="top">
 <h1>SMART STATS UG</h1>
-<p>Tap match to view live score</p>
+<p>Tap match to view live score - All times EAT (Kampala)</p>
 <p id="dateText">Loading...</p>
 <div class="tabs">
 <button id="tToday" class="tab active" onclick="switchTab('today')">Today (3)</button>
@@ -39,7 +35,6 @@
 <div id="today"></div>
 <div id="history" style="display:none"></div>
 </div>
-
 <div id="liveModal" class="modal" onclick="closeModal()">
 <div class="modal-box" onclick="event.stopPropagation()">
 <h2 id="modalMatch">Match</h2>
@@ -50,27 +45,45 @@
 <button onclick="closeModal()" style="margin-top:15px;width:100%;padding:12px;border-radius:12px;border:none;background:#0f172a;color:#fff;font-weight:700">Close</button>
 </div>
 </div>
-
 <script>
 let picksData=[], liveData={};
-
+function toEAT(utcStr){
+  try{
+    if(!utcStr) return "";
+    // utcStr like "17:30" or "2026-10-27T17:30:00Z"
+    let h,m;
+    if(utcStr.includes('T')){
+      let d=new Date(utcStr);
+      // Convert to EAT UTC+3
+      d.setHours(d.getHours()+3);
+      h=d.getHours(); m=d.getMinutes();
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} EAT`;
+    } else {
+      let parts=utcStr.split(':');
+      h=parseInt(parts[0]); m=parseInt(parts[1]);
+      h=(h+3)%24;
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} EAT`;
+    }
+  }catch(e){ return utcStr+" EAT"; }
+}
 async function load(){
  const r=await fetch('./picks.json?v='+Date.now());
  const data=await r.json();
  picksData=data.picks||[];
- document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT';
+ document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT • Times EAT';
  renderToday(data);
  loadLive();
  setInterval(loadLive, 60000);
 }
 function renderToday(data){
  const cont=document.getElementById('today');
- if(!data.picks||data.picks.length==0){cont.innerHTML='<div class="empty">No picks yet - check 10AM</div>';return;}
+ if(!data.picks||data.picks.length==0){cont.innerHTML='<div class="empty">No picks yet - check 10AM EAT</div>';return;}
  cont.innerHTML=data.picks.map(p=>{
   const res=(p.result||'PENDING').toUpperCase();
+  const eat=toEAT(p.time||p.utcDate||'');
   return `<div class="card" onclick="openLive(${p.id})">
    <div class="head"><div class="match">${p.match}</div><div class="badge">${p.market}</div></div>
-   <div class="meta"><span>${p.time} • Tap for live</span><span>${p.probability||''}</span></div>
+   <div class="meta"><span>${eat} • Tap for live</span><span>${p.probability||''}</span></div>
    <div class="stats">${p.stats||p.reason||''}</div>
    <div class="foot"><div class="odds">${p.odds||p.odds_range||'1.30'}</div><div class="result ${res}" id="live-${p.id}">${res}</div></div>
   </div>`;
@@ -84,10 +97,12 @@ async function loadLive(){
    const m=liveData[id]; const el=document.getElementById('live-'+id);
    if(!el) continue;
    if(m.status=='IN_PLAY' || m.status=='PAUSED' || m.status=='LIVE'){
-    const sc=m.score?.fullTime||m.score?.halfTime||{}; const h=sc.home??m.score?.fullTime?.home??0; const a=sc.away??m.score?.fullTime?.away??0;
+    const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
     el.innerText=`LIVE ${h}-${a} ${m.minute||''}'`; el.className='result LIVE';
    } else if(m.status=='FINISHED'){
-    const sc=m.score?.fullTime||{}; el.innerText=`FT ${sc.home??0}-${sc.away??0}`;
+    const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0; const total=h+a;
+    el.innerText= total>=2 ? `WON ${h}-${a}` : `LOST ${h}-${a}`;
+    el.className= total>=2 ? 'result WON' : 'result LOST';
    }
   }
  }catch(e){}
@@ -95,21 +110,28 @@ async function loadLive(){
 function openLive(id){
  const p=picksData.find(x=>x.id==id); if(!p) return;
  const m=liveData[String(id)];
+ const eat=toEAT(p.time||p.utcDate||'');
  document.getElementById('modalMatch').innerText=p.match;
  const statusDiv=document.getElementById('modalStatus');
  const scoreDiv=document.getElementById('modalScore');
  const minuteDiv=document.getElementById('modalMinute');
  const infoDiv=document.getElementById('modalInfo');
  
- if(!m || m.status=='TIMED' || m.status=='SCHEDULED'){
-  statusDiv.innerText='⏰ Not started yet'; scoreDiv.innerText='- : -'; minuteDiv.innerText=p.time;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Live score will show here automatically when match kicks off.`;
+ if(!m){
+  statusDiv.innerText='⏰ Waiting for live update'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Live score appears after kickoff.`;
+ } else if(m.status=='FINISHED'){
+  const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0; const total=h+a;
+  const result = total>=2 ? '✅ WON - Over 1.5 HIT!' : '❌ LOST';
+  statusDiv.innerText='✅ FINISHED TODAY'; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`FT • ${eat}`;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>FT:</b> ${h}-${a} (Total ${total})<br><b style="font-size:15px">${result}</b>`;
+ } else if(m.status=='IN_PLAY' || m.status=='PAUSED'){
+  const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
+  statusDiv.innerText=`🔴 LIVE - ${m.status}`; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`${m.minute||''} • ${eat}`;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Live Total:</b> ${h+a}<br>${(h+a)>=2?'✅ Winning now!':'Needs more goals'}`;
  } else {
-  const sc=m.score?.fullTime||m.score?.halfTime||{}; const ft=m.score?.fullTime||{};
-  statusDiv.innerText=`Status: ${m.status}`; scoreDiv.innerText=`${ft.home??sc.home??0} : ${ft.away??sc.away??0}`; minuteDiv.innerText=m.minute?`Minute ${m.minute}'`:'';
-  const total=(ft.home||0)+(ft.away||0);
-  const win=total>=2?'✅ WON - Over 1.5 Goals HIT!':'❌ Needs more goals';
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Total Goals:</b> ${total}<br><b>${m.status=='FINISHED'?win:'Live status'}</b><br><br>Auto-updates every 10 mins`;
+  statusDiv.innerText='⏰ Not started yet - Today'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
+  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>Reason:</b> ${p.stats||p.reason}<br><br>Kickoff ${eat}. Live appears at kickoff.`;
  }
  document.getElementById('liveModal').classList.add('show');
 }
