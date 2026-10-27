@@ -74,24 +74,62 @@ function renderToday(data){
     const market = p.market || p.pick || 'Over 1.5 Goals';
     const stats = p.stats || p.reason || p.analysis || 'Selected based on last 10 form';
     const odds = p.odds || p.odd || '1.30';
-    const match = p.match || p.fixture || (p.home && p.away ? p.home+' vs '+p.away : 'Match');
+    const match = p.match || p.fixture || 'Match';
     return `
-    <div class="card">
+    <div class="card" onclick="openLive(${p.id||0}, '${match.replace(/'/g,"")}')" style="cursor:pointer">
       <div class="head">
         <div class="match">${match}</div>
         <div class="badge">${market}</div>
       </div>
       <div class="meta">
-        <span>${time} UTC</span>
+        <span>${time} UTC • Click to view live</span>
         <span>Pick: <b>${market}</b></span>
       </div>
       <div class="stats">${stats}</div>
       <div class="foot">
         <div class="odds">${odds}</div>
-        <div class="result ${res}">${res}</div>
+        <div class="result ${res}" id="live-${p.id}">${res}</div>
       </div>
     </div>`;
   }).join('');
+  loadLive();
+}
+
+async function loadLive(){
+  try{
+    const r=await fetch('./live.json?v='+Date.now());
+    const live=await r.json();
+    for(let id in live){
+      const m=live[id];
+      const el=document.getElementById('live-'+id);
+      if(!el) continue;
+      if(m.status=='IN_PLAY' || m.status=='LIVE'){
+        const home=m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? 0;
+        const away=m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? 0;
+        el.innerText=`LIVE ${home}-${away} ${m.minute||''}'`;
+        el.className='result WON';
+        el.style.background='#ef4444';
+        el.style.color='#fff';
+      } else if(m.status=='FINISHED'){
+        const home=m.score?.fullTime?.home ?? 0;
+        const away=m.score?.fullTime?.away ?? 0;
+        el.innerText=`FT ${home}-${away}`;
+      }
+    }
+  }catch(e){}
+}
+
+function openLive(id, matchName){
+  if(!id) return alert(matchName + "\n\nLive score will appear here when match starts.\nAuto-updates every 10 mins.");
+  fetch('./live.json?v='+Date.now()).then(r=>r.json()).then(live=>{
+    const m=live[String(id)];
+    if(!m || m.status=='TIMED' || m.status=='SCHEDULED'){
+      alert(matchName + "\n\n⏰ Not started yet\nKickoff: check time\n\nYou will see LIVE score here automatically when it starts.");
+    } else {
+      const s=m.score?.fullTime || m.score?.halfTime || {};
+      alert(matchName + `\n\nStatus: ${m.status}\nMinute: ${m.minute||'-'}\nScore: ${s.home??0} - ${s.away??0}\n\nAuto-updating every 10 mins`);
+    }
+  });
 }
 
 function renderHistory(data){
