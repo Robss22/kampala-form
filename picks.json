@@ -2,28 +2,55 @@
   "date": "2026-10-27",
   "picks": [
     {
+      "id": 558556,
       "match": "US Sassuolo Calcio vs SS Lazio",
-      "time": "17:30 UTC",
+      "home": "US Sassuolo Calcio",
+      "away": "SS Lazio",
+      "time": "17:30",
+      "utcDate": "2026-10-27T17:30:00Z",
       "market": "Over 1.5 Goals",
+      "pick": "Over 1.5 Goals",
       "stat": "Last 10 combined: 0/10 had 2+ goals",
+      "stats": "Last 10 combined: 0/10 had 2+ goals",
+      "reason": "Last 10 combined: 0/10 had 2+ goals - US Sassuolo Calcio 0/5, SS Lazio 0/5",
       "probability": "0%",
-      "odds_range": "1.25-1.40"
+      "odds": "1.25-1.40",
+      "odds_range": "1.25-1.40",
+      "result": "PENDING"
     },
     {
+      "id": 558555,
       "match": "AS Roma vs Cagliari Calcio",
-      "time": "19:45 UTC",
+      "home": "AS Roma",
+      "away": "Cagliari Calcio",
+      "time": "19:45",
+      "utcDate": "2026-10-27T19:45:00Z",
       "market": "Over 1.5 Goals",
+      "pick": "Over 1.5 Goals",
       "stat": "Last 10 combined: 0/10 had 2+ goals",
+      "stats": "Last 10 combined: 0/10 had 2+ goals",
+      "reason": "Last 10 combined: 0/10 had 2+ goals - AS Roma 0/5, Cagliari Calcio 0/5",
       "probability": "0%",
-      "odds_range": "1.25-1.40"
+      "odds": "1.25-1.40",
+      "odds_range": "1.25-1.40",
+      "result": "PENDING"
     },
     {
+      "id": 558557,
       "match": "Torino FC vs Como 1907",
-      "time": "19:45 UTC",
+      "home": "Torino FC",
+      "away": "Como 1907",
+      "time": "19:45",
+      "utcDate": "2026-10-27T19:45:00Z",
       "market": "Over 1.5 Goals",
+      "pick": "Over 1.5 Goals",
       "stat": "Last 10 combined: 0/10 had 2+ goals",
+      "stats": "Last 10 combined: 0/10 had 2+ goals",
+      "reason": "Last 10 combined: 0/10 had 2+ goals - Torino FC 0/5, Como 1907 0/5",
       "probability": "0%",
-      "odds_range": "1.25-1.40"
+      "odds": "1.25-1.40",
+      "odds_range": "1.25-1.40",
+      "result": "PENDING"
     }
   ]
 }
