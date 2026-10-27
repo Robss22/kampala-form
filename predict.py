@@ -44,5 +44,3 @@ if len(matches)==0:
 
 with open('picks.json','w') as f:
     json.dump({"date": today, "picks": matches, "generated_at": datetime.utcnow().isoformat()}, f, indent=2)
-
-print(f"Saved {len(matches)} picks with %")
