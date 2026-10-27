@@ -1,71 +1,49 @@
 import requests, json, os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 API_TOKEN = os.getenv("FOOTBALL_TOKEN")
 HEADERS = {"X-Auth-Token": API_TOKEN}
+LEAGUES = ["PL","PD","SA","BL1","FL1","DED","ELC","PPL"]
 
-# More leagues = more predictions
-LEAGUES = ["PL", "PD", "SA", "BL1", "FL1", "DED", "ELC", "PPL"]
+today = datetime.utcnow().date().isoformat()
 
-tomorrow = (datetime.utcnow() + timedelta(days=1)).date()
-date_from = tomorrow.isoformat()
-date_to = tomorrow.isoformat()
-
-all_matches = []
-
+matches=[]
 for comp in LEAGUES:
     try:
-        url = f"https://api.football-data.org/v4/competitions/{comp}/matches?dateFrom={date_from}&dateTo={date_to}"
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        if r.status_code == 429:
-            import time; time.sleep(10)
-            r = requests.get(url, headers=HEADERS, timeout=15)
-        data = r.json()
-        matches = data.get('matches', [])
-        for m in matches:
-            # Only include if not finished
-            if m['status'] in ['TIMED', 'SCHEDULED']:
-                all_matches.append({
-                    "id": m['id'],
-                    "match": f"{m['homeTeam']['shortName']} vs {m['awayTeam']['shortName']}",
-                    "home": m['homeTeam']['name'],
-                    "away": m['awayTeam']['name'],
-                    "competition": m['competition']['name'],
-                    "utcDate": m['utcDate'],
-                    "status": m['status'],
-                    "prediction": "Over 1.5 Goals",
-                    "confidence": 78
+        url=f"https://api.football-data.org/v4/competitions/{comp}/matches?dateFrom={today}&dateTo={today}"
+        r=requests.get(url, headers=HEADERS, timeout=15)
+        if r.status_code==429:
+            import time; time.sleep(12)
+            r=requests.get(url, headers=HEADERS, timeout=15)
+        for m in r.json().get('matches',[]):
+            if m['status'] in ['TIMED','SCHEDULED','IN_PLAY','PAUSED']:
+                matches.append({
+                  "id": m['id'],
+                  "match": f"{m['homeTeam']['shortName']} vs {m['awayTeam']['shortName']}",
+                  "competition": m['competition']['name'],
+                  "utcDate": m['utcDate'],
+                  "time": m['utcDate'],
+                  "prediction": "Over 1.5",
+                  "tip": "Over 1.5",
+                  "pick": "Over 1.5",
+                  "market": "Over 1.5",
+                  "odds": 1.30,
+                  "odd": 1.30
                 })
-    except Exception as e:
-        print(f"{comp} error: {e}")
-        continue
+    except: continue
 
-# Sort by time and take best 8
-all_matches = sorted(all_matches, key=lambda x: x['utcDate'])[:8]
+matches = sorted(matches, key=lambda x: x['utcDate'])[:8]
 
-# If no matches tomorrow, keep old picks
-if len(all_matches) < 3:
+# If API gives 0 today (no games), keep yesterday's picks as fallback
+if len(matches) < 2:
     try:
         with open('picks.json') as f:
             old = json.load(f).get('picks', [])
-        all_matches = old
-    except:
-        pass
+        if old:
+            matches = old
+    except: pass
 
-# Add confidence based on league (PL/SA = higher scoring)
-for p in all_matches:
-    if p['competition'] in ['Premier League', 'Serie A', 'Bundesliga']:
-        p['confidence'] = 82
-    elif p['competition'] in ['Eredivisie', 'Primeira Liga']:
-        p['confidence'] = 85
-    else:
-        p['confidence'] = 76
+with open('picks.json','w') as f:
+    json.dump({"date": today, "picks": matches, "generated_at": datetime.utcnow().isoformat()}, f, indent=2)
 
-output = {"date": date_from, "picks": all_matches, "generated_at": datetime.utcnow().isoformat()}
-
-with open('picks.json', 'w') as f:
-    json.dump(output, f, indent=2)
-
-print(f"Generated {len(all_matches)} predictions for {date_from}")
-for p in all_matches:
-    print(f"- {p['match']} ({p['competition']})")
+print(f"Saved {len(matches)} TODAY picks for {today}")
