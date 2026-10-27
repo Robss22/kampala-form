@@ -1,44 +1,61 @@
 {
-  "date": "2026-10-27",
+  "date": "2026-10-28",
   "picks": [
     {
-      "id": 558556,
-      "match": "US Sassuolo Calcio vs SS Lazio",
-      "time": "17:30",
-      "utcDate": "2026-10-27T17:30:00Z",
-      "market": "Over 1.5 Goals",
-      "pick": "Over 1.5 Goals",
-      "stats": "US Sassuolo Calcio 5/5 + SS Lazio 5/5 = 10/10 Over 1.5 (100%)",
-      "reason": "US Sassuolo Calcio 5/5 + SS Lazio 5/5 = 10/10 Over 1.5 (100%)",
-      "odds": "1.25-1.40",
-      "probability": "100%",
-      "result": "PENDING"
+      "id": 558549,
+      "match": "Milan vs Bologna",
+      "home": "AC Milan",
+      "away": "Bologna FC 1909",
+      "competition": "Serie A",
+      "utcDate": "2026-10-28T17:30:00Z",
+      "status": "TIMED",
+      "prediction": "Over 1.5 Goals",
+      "confidence": 82
     },
     {
-      "id": 558557,
-      "match": "Torino FC vs Como 1907",
-      "time": "19:45",
-      "utcDate": "2026-10-27T19:45:00Z",
-      "market": "Over 1.5 Goals",
-      "pick": "Over 1.5 Goals",
-      "stats": "Torino FC 5/5 + Como 1907 4/5 = 9/10 Over 1.5 (90%)",
-      "reason": "Torino FC 5/5 + Como 1907 4/5 = 9/10 Over 1.5 (90%)",
-      "odds": "1.25-1.40",
-      "probability": "90%",
-      "result": "PENDING"
+      "id": 558550,
+      "match": "Venezia FC vs Inter",
+      "home": "Venezia FC",
+      "away": "FC Internazionale Milano",
+      "competition": "Serie A",
+      "utcDate": "2026-10-28T17:30:00Z",
+      "status": "TIMED",
+      "prediction": "Over 1.5 Goals",
+      "confidence": 82
     },
     {
-      "id": 558555,
-      "match": "AS Roma vs Cagliari Calcio",
-      "time": "19:45",
-      "utcDate": "2026-10-27T19:45:00Z",
-      "market": "Over 1.5 Goals",
-      "pick": "Over 1.5 Goals",
-      "stats": "AS Roma 4/5 + Cagliari Calcio 4/5 = 8/10 Over 1.5 (80%)",
-      "reason": "AS Roma 4/5 + Cagliari Calcio 4/5 = 8/10 Over 1.5 (80%)",
-      "odds": "1.25-1.40",
-      "probability": "80%",
-      "result": "PENDING"
+      "id": 558553,
+      "match": "Parma vs Udinese",
+      "home": "Parma Calcio 1913",
+      "away": "Udinese Calcio",
+      "competition": "Serie A",
+      "utcDate": "2026-10-28T17:30:00Z",
+      "status": "TIMED",
+      "prediction": "Over 1.5 Goals",
+      "confidence": 82
+    },
+    {
+      "id": 558552,
+      "match": "Genoa vs Juventus",
+      "home": "Genoa CFC",
+      "away": "Juventus FC",
+      "competition": "Serie A",
+      "utcDate": "2026-10-28T19:45:00Z",
+      "status": "TIMED",
+      "prediction": "Over 1.5 Goals",
+      "confidence": 82
+    },
+    {
+      "id": 558554,
+      "match": "Monza vs Napoli",
+      "home": "AC Monza",
+      "away": "SSC Napoli",
+      "competition": "Serie A",
+      "utcDate": "2026-10-28T19:45:00Z",
+      "status": "TIMED",
+      "prediction": "Over 1.5 Goals",
+      "confidence": 82
     }
-  ]
+  ],
+  "generated_at": "2026-10-27T20:17:08.050556"
 }
