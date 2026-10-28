@@ -10,13 +10,18 @@
 .tabs{display:flex;justify-content:center;gap:8px;margin:12px 0}.tab{border:none;padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;background:#e2e8f0;cursor:pointer}.tab.active{background:#0f172a;color:#fff}
 .wrap{max-width:560px;margin:0 auto;padding:0 12px 30px}
 .card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.06);border:1px solid #eef2f7;cursor:pointer}
-.head{display:flex;justify-content:space-between;gap:10px}.match{font-weight:800;font-size:15px;flex:1}.badge{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:#0ea5e9;white-space:nowrap}
-.meta{margin-top:8px;font-size:12px;color:#64748b;display:flex;justify-content:space-between}
+.card.static{cursor:default;padding:12px 14px;margin:8px 0}
+.head{display:flex;justify-content:space-between;gap:10px}.match{font-weight:800;font-size:15px;flex:1}.badge{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:#0ea5e9;white-space:nowrap;height:fit-content}
+.meta{margin-top:8px;font-size:12px;color:#64748b;display:flex;justify-content:space-between;gap:8px}
 .stats{margin-top:10px;background:#f1f5f9;border-radius:10px;padding:10px;font-size:13px;color:#334155}
 .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.odds{font-weight:800;font-size:14px}
-.result{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800}.PENDING{background:#fef9c3;color:#854d0e}.WON{background:#dcfce7;color:#166534}.LOST{background:#fee2e2;color:#991b1b}.LIVE{background:#ef4444;color:#fff;animation:pulse 1.5s infinite}
+.result{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;height:fit-content}
+.PENDING{background:#fef9c3;color:#854d0e}.WON{background:#dcfce7;color:#166534}.LOST{background:#fee2e2;color:#991b1b}.VOID{background:#e2e8f0;color:#475569}.LIVE{background:#ef4444;color:#fff;animation:pulse 1.5s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:0.7}100%{opacity:1}}
 .empty{text-align:center;color:#94a3b8;padding:40px 0}
+.summary{display:flex;gap:8px;margin:6px 0 4px}.sbox{flex:1;background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:10px 6px;text-align:center}.sbox b{display:block;font-size:20px}.sbox span{font-size:11px;color:#64748b}
+.day{display:flex;justify-content:space-between;align-items:baseline;margin:18px 4px 4px;font-weight:800;font-size:14px}.day small{font-weight:600;color:#64748b;font-size:12px}
+.note{font-size:11px;color:#94a3b8;text-align:center;margin:18px 8px 0;line-height:1.5}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99;justify-content:center;align-items:center;padding:20px}.modal.show{display:flex}
 .modal-box{background:#fff;border-radius:20px;padding:20px;max-width:400px;width:100%;text-align:center}.modal-box h2{margin:0 0 10px;font-size:18px}.score{font-size:36px;font-weight:900;margin:15px 0}
 </style>
@@ -34,6 +39,7 @@
 <div class="wrap">
 <div id="today"></div>
 <div id="history" style="display:none"></div>
+<div class="note">Model estimates from past results, not guarantees. Bet responsibly (18+).</div>
 </div>
 <div id="liveModal" class="modal" onclick="closeModal()">
 <div class="modal-box" onclick="event.stopPropagation()">
@@ -47,40 +53,45 @@
 </div>
 <script>
 let picksData=[], liveData={};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toEAT(utcStr){
   try{
-    if(!utcStr) return "";
-    if(utcStr.includes('T')){
-      let d=new Date(utcStr);
-      let h=d.getUTCHours()+3; let m=d.getUTCMinutes();
-      if(h>=24) h-=24;
-      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} EAT`;
-    }
-  }catch(e){ return utcStr+" EAT"; }
+    if(!utcStr||!String(utcStr).includes('T')) return '';
+    return new Date(utcStr).toLocaleTimeString('en-GB',{timeZone:'Africa/Kampala',hour:'2-digit',minute:'2-digit'})+' EAT';
+  }catch(e){ return ''; }
+}
+function prettyDate(d){
+  try{ return new Date(d+'T00:00:00Z').toLocaleDateString('en-GB',{timeZone:'UTC',weekday:'short',day:'numeric',month:'short'}); }
+  catch(e){ return d; }
 }
 async function load(){
- const r=await fetch('./picks.json?v='+Date.now());
- const data=await r.json();
- picksData=data.picks||[];
- document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT • Times EAT';
- document.getElementById('tToday').innerText=`Today (${picksData.length})`;
- renderToday(data);
+ try{
+  const r=await fetch('./picks.json?v='+Date.now());
+  const data=await r.json();
+  picksData=data.picks||[];
+  document.getElementById('dateText').innerText='Date: '+(data.date||'Today')+' • Updates 10AM EAT • Times EAT';
+  document.getElementById('tToday').innerText=`Today (${picksData.length})`;
+  renderToday(data);
+ }catch(e){
+  document.getElementById('today').innerHTML='<div class="empty">Could not load picks</div>';
+ }
  loadLive();
  setInterval(loadLive, 60000);
 }
 function renderToday(data){
  const cont=document.getElementById('today');
- if(!data.picks||data.picks.length==0){cont.innerHTML='<div class="empty">No picks yet - check 10AM EAT</div>';return;}
+ if(!data.picks||data.picks.length==0){cont.innerHTML='<div class="empty">No strong picks today - check back tomorrow 10AM EAT</div>';return;}
  cont.innerHTML=data.picks.map(p=>{
   const res=(p.result||'PENDING').toUpperCase();
   const eat=toEAT(p.time||p.utcDate||'');
-  const conf = p.confidence ?? p.percent ?? p.winPercent ?? p.probability ?? 80;
-  const detail = p.formDetail || p.explanation || p.analysis || p.reason || p.stats || '';
-  return `<div class="card" onclick="openLive(${p.id})">
-   <div class="head"><div class="match">${p.match}</div><div class="badge">${p.market||p.prediction||'Over 1.5 Goals'}</div></div>
-   <div class="meta"><span>${eat} • Tap for live</span><span style="font-weight:700;color:#0f172a">${conf}%</span></div>
-   <div class="stats">${detail}</div>
-   <div class="foot"><div class="odds">${p.odds||'1.25-1.40'}</div><div class="result ${res}" id="live-${p.id}">${res}</div></div>
+  const conf=p.prob??p.confidence??p.percent??'';
+  const detail=p.formDetail||p.explanation||p.analysis||p.reason||p.stats||'';
+  const odds=p.fairOdds?`Fair odds ${p.fairOdds}`:(p.odds||'');
+  return `<div class="card" onclick="openLive(${Number(p.id)})">
+   <div class="head"><div class="match">${esc(p.match)}</div><div class="badge">${esc(p.market||p.prediction||'Over 1.5 Goals')}</div></div>
+   <div class="meta"><span>${esc(p.competition||'')} ${p.competition?'•':''} ${eat} • Tap for live</span><span style="font-weight:700;color:#0f172a">${esc(conf)}%</span></div>
+   <div class="stats">${esc(detail)}</div>
+   <div class="foot"><div class="odds">${esc(odds)}</div><div class="result ${res}" id="live-${Number(p.id)}">${res}</div></div>
   </div>`;
  }).join('');
 }
@@ -91,11 +102,11 @@ async function loadLive(){
   for(let id in liveData){
    const m=liveData[id]; const el=document.getElementById('live-'+id);
    if(!el) continue;
+   const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
    if(m.status=='IN_PLAY' || m.status=='PAUSED' || m.status=='LIVE'){
-    const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
     el.innerText=`LIVE ${h}-${a} ${m.minute||''}'`; el.className='result LIVE';
    } else if(m.status=='FINISHED'){
-    const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0; const total=h+a;
+    const total=h+a;
     el.innerText= total>=2 ? `WON ${h}-${a}` : `LOST ${h}-${a}`;
     el.className= total>=2 ? 'result WON' : 'result LOST';
    }
@@ -111,11 +122,11 @@ function openLive(id){
  const scoreDiv=document.getElementById('modalScore');
  const minuteDiv=document.getElementById('modalMinute');
  const infoDiv=document.getElementById('modalInfo');
- const detail = p.formDetail || p.explanation || p.analysis || p.reason || p.stats || '';
- const conf = p.confidence ?? p.percent ?? 80;
+ const detail=esc(p.formDetail||p.explanation||p.analysis||p.reason||p.stats||'');
+ const conf=esc(p.prob??p.confidence??p.percent??'');
  if(!m){
   statusDiv.innerText='⏰ Waiting for live update'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
-  infoDiv.innerHTML=`<b>Pick:</b> ${p.market}<br><b>${conf}%</b> - ${detail}`;
+  infoDiv.innerHTML=`<b>Pick:</b> ${esc(p.market)}<br><b>${conf}%</b> - ${detail}`;
  } else if(m.status=='FINISHED'){
   const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0; const total=h+a;
   const result = total>=2 ? '✅ WON - Over 1.5 HIT!' : '❌ LOST';
@@ -123,7 +134,7 @@ function openLive(id){
   infoDiv.innerHTML=`<b>FT:</b> ${h}-${a} (Total ${total})<br><b>${result}</b><br>${detail}`;
  } else if(m.status=='IN_PLAY' || m.status=='PAUSED'){
   const ft=m.score?.fullTime||{}; const h=ft.home??0; const a=ft.away??0;
-  statusDiv.innerText=`🔴 LIVE`; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`${m.minute||''} • ${eat}`;
+  statusDiv.innerText='🔴 LIVE'; scoreDiv.innerText=`${h} : ${a}`; minuteDiv.innerText=`${m.minute||''} • ${eat}`;
   infoDiv.innerHTML=`<b>Live Total:</b> ${h+a}<br>${(h+a)>=2?'✅ Winning now!':'Needs more goals'}<br>${detail}`;
  } else {
   statusDiv.innerText='⏰ Not started yet'; scoreDiv.innerText='- : -'; minuteDiv.innerText=eat;
@@ -132,10 +143,48 @@ function openLive(id){
  document.getElementById('liveModal').classList.add('show');
 }
 function closeModal(){document.getElementById('liveModal').classList.remove('show');}
-function switchTab(t){document.getElementById('today').style.display=t=='today'?'block':'none';document.getElementById('history').style.display=t=='history'?'block':'none';document.getElementById('tToday').className=t=='today'?'tab active':'tab';document.getElementById('tHist').className=t=='history'?'tab active':'tab'; if(t=='history') loadHistory();}
+function switchTab(t){
+ document.getElementById('today').style.display=t=='today'?'block':'none';
+ document.getElementById('history').style.display=t=='history'?'block':'none';
+ document.getElementById('tToday').className=t=='today'?'tab active':'tab';
+ document.getElementById('tHist').className=t=='history'?'tab active':'tab';
+ if(t=='history') loadHistory();
+}
+function renderHistory(h){
+ const days=(Array.isArray(h)?h:[]).filter(d=>d&&d.date&&Array.isArray(d.picks)&&d.picks.length)
+   .sort((a,b)=>b.date.localeCompare(a.date));
+ if(!days.length) return '<div class="empty">No history yet</div>';
+ const all=days.flatMap(d=>d.picks);
+ const won=all.filter(p=>p.result=='WON').length, lost=all.filter(p=>p.result=='LOST').length;
+ const pend=all.length-won-lost-all.filter(p=>p.result=='VOID').length;
+ const rate=(won+lost)?Math.round(won/(won+lost)*100)+'%':'--';
+ let html=`<div class="summary">
+  <div class="sbox"><b>${won}</b><span>Won</span></div>
+  <div class="sbox"><b>${lost}</b><span>Lost</span></div>
+  <div class="sbox"><b>${pend}</b><span>Pending</span></div>
+  <div class="sbox"><b>${rate}</b><span>Hit rate</span></div></div>`;
+ days.slice(0,14).forEach(day=>{
+  const w=day.picks.filter(p=>p.result=='WON').length, l=day.picks.filter(p=>p.result=='LOST').length;
+  html+=`<div class="day"><span>${esc(prettyDate(day.date))}</span><small>${w} won • ${l} lost • ${day.picks.length} picks</small></div>`;
+  day.picks.forEach(p=>{
+   const res=(p.result||'PENDING').toUpperCase();
+   const bits=[p.competition,toEAT(p.utcDate),p.prob?p.prob+'%':'',p.finalScore?'FT '+p.finalScore:''].filter(Boolean).join(' • ');
+   html+=`<div class="card static"><div class="head"><div class="match" style="font-size:14px">${esc(p.match)}</div><div class="result ${res}">${res}</div></div>
+    <div class="meta"><span>${esc(p.market||'Over 1.5 Goals')}${bits?' • '+esc(bits):''}</span></div></div>`;
+  });
+ });
+ return html;
+}
 async function loadHistory(){
  const c=document.getElementById('history');
- try{const r=await fetch('./history.json?v='+Date.now());const h=await r.json();let html='';h.slice(0,7).forEach(day=>{html+=`<div style="font-weight:700;margin:16px 4px 6px;font-size:13px">${day.date}</div>`;(day.picks||[]).forEach(p=>{html+=`<div class="card" style="cursor:default"><div class="head"><div class="match" style="font-size:14px">${p.match}</div><div class="result ${p.result||'PENDING'}">${p.result||'PENDING'}</div></div></div>`;});});c.innerHTML=html||'<div class="empty">No history</div>';}catch(e){c.innerHTML='<div class="empty">No history yet</div>';}
+ c.innerHTML='<div class="empty">Loading...</div>';
+ try{
+  const r=await fetch('./history.json?v='+Date.now());
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  c.innerHTML=renderHistory(await r.json());
+ }catch(e){
+  c.innerHTML='<div class="empty">Could not load history ('+esc(e.message)+')</div>';
+ }
 }
 load();
 </script>
