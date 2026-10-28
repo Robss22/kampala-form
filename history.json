@@ -7,21 +7,27 @@
         "match": "AC Milan vs Bologna FC 1909",
         "competition": "Serie A",
         "utcDate": "2026-10-28T17:30:00Z",
-        "market": "Over 1.5 Goals"
+        "market": "Over 1.5 Goals",
+        "result": "WON",
+        "finalScore": "2-4"
       },
       {
         "id": 558550,
         "match": "Venezia FC vs FC Internazionale Milano",
         "competition": "Serie A",
         "utcDate": "2026-10-28T17:30:00Z",
-        "market": "Over 1.5 Goals"
+        "market": "Over 1.5 Goals",
+        "result": "WON",
+        "finalScore": "0-2"
       },
       {
         "id": 558553,
         "match": "Parma Calcio 1913 vs Udinese Calcio",
         "competition": "Serie A",
         "utcDate": "2026-10-28T17:30:00Z",
-        "market": "Over 1.5 Goals"
+        "market": "Over 1.5 Goals",
+        "result": "LOST",
+        "finalScore": "0-0"
       }
     ]
   },

@@ -1,50 +1,50 @@
 {
   "558549": {
-    "status": "TIMED",
+    "status": "FINISHED",
     "score": {
-      "winner": null,
+      "winner": "AWAY_TEAM",
       "duration": "REGULAR",
       "fullTime": {
-        "home": null,
-        "away": null
+        "home": 2,
+        "away": 4
       },
       "halfTime": {
-        "home": null,
-        "away": null
+        "home": 2,
+        "away": 1
       }
     },
     "minute": "",
     "utcDate": "2026-10-28T17:30:00Z"
   },
   "558550": {
-    "status": "TIMED",
+    "status": "FINISHED",
     "score": {
-      "winner": null,
+      "winner": "AWAY_TEAM",
       "duration": "REGULAR",
       "fullTime": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 2
       },
       "halfTime": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     "minute": "",
     "utcDate": "2026-10-28T17:30:00Z"
   },
   "558553": {
-    "status": "TIMED",
+    "status": "FINISHED",
     "score": {
-      "winner": null,
+      "winner": "DRAW",
       "duration": "REGULAR",
       "fullTime": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       },
       "halfTime": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     "minute": "",

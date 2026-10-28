@@ -17,7 +17,9 @@
       "formDetail": "AC Milan 5/5 + Bologna FC 1909 5/5 = 10/10 Over 1.5 (100%)",
       "explanation": "AC Milan 5/5 + Bologna FC 1909 5/5 = 10/10 Over 1.5 (100%)",
       "analysis": "AC Milan 5/5 + Bologna FC 1909 5/5 = 10/10 Over 1.5 (100%)",
-      "reason": "AC Milan 5/5 + Bologna FC 1909 5/5 = 10/10 Over 1.5 (100%)"
+      "reason": "AC Milan 5/5 + Bologna FC 1909 5/5 = 10/10 Over 1.5 (100%)",
+      "result": "WON",
+      "finalScore": "2-4"
     },
     {
       "id": 558550,
@@ -35,7 +37,9 @@
       "formDetail": "Venezia FC 4/5 + FC Internazionale Milano 4/5 = 8/10 Over 1.5 (80%)",
       "explanation": "Venezia FC 4/5 + FC Internazionale Milano 4/5 = 8/10 Over 1.5 (80%)",
       "analysis": "Venezia FC 4/5 + FC Internazionale Milano 4/5 = 8/10 Over 1.5 (80%)",
-      "reason": "Venezia FC 4/5 + FC Internazionale Milano 4/5 = 8/10 Over 1.5 (80%)"
+      "reason": "Venezia FC 4/5 + FC Internazionale Milano 4/5 = 8/10 Over 1.5 (80%)",
+      "result": "WON",
+      "finalScore": "0-2"
     },
     {
       "id": 558553,
@@ -53,7 +57,9 @@
       "formDetail": "Parma Calcio 1913 5/5 + Udinese Calcio 4/5 = 9/10 Over 1.5 (90%)",
       "explanation": "Parma Calcio 1913 5/5 + Udinese Calcio 4/5 = 9/10 Over 1.5 (90%)",
       "analysis": "Parma Calcio 1913 5/5 + Udinese Calcio 4/5 = 9/10 Over 1.5 (90%)",
-      "reason": "Parma Calcio 1913 5/5 + Udinese Calcio 4/5 = 9/10 Over 1.5 (90%)"
+      "reason": "Parma Calcio 1913 5/5 + Udinese Calcio 4/5 = 9/10 Over 1.5 (90%)",
+      "result": "LOST",
+      "finalScore": "0-0"
     }
   ]
 }
