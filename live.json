@@ -1,17 +1,53 @@
 {
   "558549": {
-    "status": null,
-    "score": {},
-    "minute": null
+    "status": "TIMED",
+    "score": {
+      "winner": null,
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": null,
+        "away": null
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-28T17:30:00Z"
   },
   "558550": {
-    "status": null,
-    "score": {},
-    "minute": null
+    "status": "TIMED",
+    "score": {
+      "winner": null,
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": null,
+        "away": null
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-28T17:30:00Z"
   },
   "558553": {
-    "status": null,
-    "score": {},
-    "minute": null
+    "status": "TIMED",
+    "score": {
+      "winner": null,
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": null,
+        "away": null
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
+    "minute": "",
+    "utcDate": "2026-10-28T17:30:00Z"
   }
 }
