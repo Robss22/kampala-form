@@ -1,138 +1,17 @@
 {
-  "558556": {
-    "status": "FINISHED",
-    "score": {
-      "winner": "AWAY_TEAM",
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": 2,
-        "away": 6
-      },
-      "halfTime": {
-        "home": 2,
-        "away": 4
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-27T17:30:00Z"
-  },
-  "558557": {
-    "status": "FINISHED",
-    "score": {
-      "winner": "AWAY_TEAM",
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": 1,
-        "away": 3
-      },
-      "halfTime": {
-        "home": 1,
-        "away": 0
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-27T19:45:00Z"
-  },
-  "558555": {
-    "status": "FINISHED",
-    "score": {
-      "winner": "HOME_TEAM",
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": 4,
-        "away": 2
-      },
-      "halfTime": {
-        "home": 2,
-        "away": 1
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-27T19:45:00Z"
-  },
   "558549": {
-    "status": "TIMED",
-    "score": {
-      "winner": null,
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": null,
-        "away": null
-      },
-      "halfTime": {
-        "home": null,
-        "away": null
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-28T17:30:00Z"
+    "status": null,
+    "score": {},
+    "minute": null
   },
   "558550": {
-    "status": "TIMED",
-    "score": {
-      "winner": null,
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": null,
-        "away": null
-      },
-      "halfTime": {
-        "home": null,
-        "away": null
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-28T17:30:00Z"
+    "status": null,
+    "score": {},
+    "minute": null
   },
   "558553": {
-    "status": "TIMED",
-    "score": {
-      "winner": null,
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": null,
-        "away": null
-      },
-      "halfTime": {
-        "home": null,
-        "away": null
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-28T17:30:00Z"
-  },
-  "558552": {
-    "status": "TIMED",
-    "score": {
-      "winner": null,
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": null,
-        "away": null
-      },
-      "halfTime": {
-        "home": null,
-        "away": null
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-28T19:45:00Z"
-  },
-  "558554": {
-    "status": "TIMED",
-    "score": {
-      "winner": null,
-      "duration": "REGULAR",
-      "fullTime": {
-        "home": null,
-        "away": null
-      },
-      "halfTime": {
-        "home": null,
-        "away": null
-      }
-    },
-    "minute": "",
-    "utcDate": "2026-10-28T19:45:00Z"
+    "status": null,
+    "score": {},
+    "minute": null
   }
 }
