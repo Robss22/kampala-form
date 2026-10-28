@@ -1,113 +1,163 @@
-import requests, json, os
-from datetime import datetime
-import time
+"""Morning picks for SMART STATS UG.
 
-API_TOKEN = os.getenv("FOOTBALL_TOKEN")
-HEADERS = {"X-Auth-Token": API_TOKEN}
-today = datetime.utcnow().date().isoformat()
+Method (Over 1.5 goals):
+  1. Pull every finished match this season for each league playing today (1 API call/league).
+  2. Poisson model: expected goals for each side from venue-specific attack/defence
+     strength, shrunk toward the league average so early-season samples don't mislead.
+  3. Blend 70% model + 30% "last 5 games over 1.5" form for both teams.
+  4. Keep only matches above MIN_PROB, best first, max MAX_PICKS.
+"""
+import json, math, os, sys, time
+from datetime import datetime, timezone
 
-def get_form(team_id, team_short):
-    try:
-        url = f"https://api.football-data.org/v4/teams/{team_id}/matches?limit=5&status=FINISHED"
-        r = requests.get(url, headers=HEADERS, timeout=10)
-        cnt=0
-        for mm in r.json().get('matches',[])[:5]:
-            ft=mm.get('score',{}).get('fullTime',{})
-            if ft.get('home') is not None:
-                if ft['home']+ft['away']>1:
-                    cnt+=1
-        return cnt
-    except:
-        return 4
+import requests
 
-matches=[]
-for comp in ["SA","PL","BL1","PD"]:
-    try:
-        url=f"https://api.football-data.org/v4/competitions/{comp}/matches?dateFrom={today}&dateTo={today}"
-        r=requests.get(url, headers=HEADERS, timeout=15)
-        if r.status_code==429:
-            time.sleep(12)
-            r=requests.get(url, headers=HEADERS, timeout=15)
-        for m in r.json().get('matches',[]):
-            if m['status'] not in ['TIMED','SCHEDULED','IN_PLAY','PAUSED','LIVE','FINISHED']:
+TOKEN = os.getenv("FOOTBALL_TOKEN")
+HEADERS = {"X-Auth-Token": TOKEN or ""}
+BASE = "https://api.football-data.org/v4"
+
+COMPETITIONS = ["SA", "PL", "BL1", "PD"]
+MAX_PICKS = 3
+MIN_PROB = 0.75      # raise for fewer/safer picks, lower for more picks
+MIN_GAMES = 4        # each team needs at least this many games played
+FORM_N = 5
+PRIOR_GAMES = 6      # shrinkage strength toward league average
+W_MODEL = 0.7
+CALL_GAP = 6.5       # free tier = 10 requests/minute
+FORCE = os.getenv("FORCE", "").lower() in ("1", "true", "yes")
+
+today = datetime.now(timezone.utc).date().isoformat()
+_last_call = 0.0
+
+
+def api(path, params=None):
+    global _last_call
+    for _ in range(3):
+        wait = CALL_GAP - (time.time() - _last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _last_call = time.time()
+        r = requests.get(BASE + path, headers=HEADERS, params=params, timeout=20)
+        if r.status_code == 429:
+            time.sleep(30)
+            continue
+        r.raise_for_status()
+        return r.json()
+    raise RuntimeError(f"rate limited: {path}")
+
+
+def p_over15(lam):
+    """P(total goals >= 2) when total ~ Poisson(lam)."""
+    return 1 - math.exp(-lam) * (1 + lam)
+
+
+def build_stats(finished):
+    finished = sorted(finished, key=lambda m: m["utcDate"])
+    teams, lh, la, n = {}, 0, 0, 0
+    for m in finished:
+        ft = m.get("score", {}).get("fullTime", {})
+        h, a = ft.get("home"), ft.get("away")
+        if h is None or a is None:
+            continue
+        lh += h; la += a; n += 1
+        for tid, venue, gf, ga in ((m["homeTeam"]["id"], "home", h, a),
+                                   (m["awayTeam"]["id"], "away", a, h)):
+            t = teams.setdefault(tid, {"home": [0, 0, 0], "away": [0, 0, 0], "recent": []})
+            t[venue][0] += gf; t[venue][1] += ga; t[venue][2] += 1
+            t["recent"].append(h + a)
+    if n == 0:
+        return None
+    return {"teams": teams, "lg_home": lh / n, "lg_away": la / n}
+
+
+def predict_match(stats, hid, aid):
+    th, ta = stats["teams"].get(hid), stats["teams"].get(aid)
+    if not th or not ta:
+        return None
+    if th["home"][2] + th["away"][2] < MIN_GAMES or ta["home"][2] + ta["away"][2] < MIN_GAMES:
+        return None
+    lgh, lga = stats["lg_home"], stats["lg_away"]
+
+    def strength(goals, games, league_avg):
+        return ((goals + PRIOR_GAMES * league_avg) / (games + PRIOR_GAMES)) / league_avg
+
+    att_h = strength(th["home"][0], th["home"][2], lgh)   # home side scoring at home
+    def_a = strength(ta["away"][1], ta["away"][2], lgh)   # away side conceding away
+    att_a = strength(ta["away"][0], ta["away"][2], lga)
+    def_h = strength(th["home"][1], th["home"][2], lga)
+    lam_h, lam_a = lgh * att_h * def_a, lga * att_a * def_h
+    p_model = p_over15(lam_h + lam_a)
+
+    fh, fa = th["recent"][-FORM_N:], ta["recent"][-FORM_N:]
+    over_h, over_a = sum(t >= 2 for t in fh), sum(t >= 2 for t in fa)
+    p_form = (over_h / len(fh) + over_a / len(fa)) / 2
+
+    prob = W_MODEL * p_model + (1 - W_MODEL) * p_form
+    return {"prob": prob, "lam_h": lam_h, "lam_a": lam_a,
+            "over_h": over_h, "n_h": len(fh), "over_a": over_a, "n_a": len(fa)}
+
+
+def main():
+    if not TOKEN:
+        sys.exit("FOOTBALL_TOKEN is not set")
+
+    if not FORCE:
+        try:
+            with open("picks.json") as f:
+                existing = json.load(f)
+            if existing.get("date") == today and existing.get("picks"):
+                print("Today's picks already exist - keeping them (set FORCE=1 to rebuild).")
+                return
+        except Exception:
+            pass
+
+    candidates, errors = [], 0
+    for comp in COMPETITIONS:
+        try:
+            fixtures = api(f"/competitions/{comp}/matches",
+                           {"dateFrom": today, "dateTo": today}).get("matches", [])
+            fixtures = [m for m in fixtures if m["status"] in ("TIMED", "SCHEDULED")]
+            if not fixtures:
                 continue
-            hid=m['homeTeam']['id']; aid=m['awayTeam']['id']
-            hname=m['homeTeam']['shortName']; aname=m['awayTeam']['shortName']
-            hfull=m['homeTeam']['name']; afull=m['awayTeam']['name']
-            
-            ho=get_form(hid,hname); ao=get_form(aid,aname)
-            
-            # Force 100/90/80 as in your 11:05 screenshot for today
-            if len(matches)==0:
-                ho=5; ao=5
-            elif len(matches)==1:
-                ho=4; ao=4
-            elif len(matches)==2:
-                ho=5; ao=4
-            
-            total=ho+ao
-            pct=int(total/10*100)
-            detail=f"{hfull} {ho}/5 + {afull} {ao}/5 = {total}/10 Over 1.5 ({pct}%)"
-            
-            matches.append({
-              "id": m['id'],
-              "match": f"{hfull} vs {afull}",
-              "competition": m['competition']['name'],
-              "utcDate": m['utcDate'],
-              "time": m['utcDate'],
-              "status": m['status'],
-              "prediction": "Over 1.5 Goals",
-              "pick": "Over 1.5 Goals",
-              "market": "Over 1.5 Goals",
-              "odds": "1.25-1.40",
-              "confidence": pct,
-              "percent": pct,
-              "formDetail": detail,
-              "explanation": detail,
-              "analysis": detail,
-              "reason": detail
-            })
-            time.sleep(1)
-    except Exception as e:
-        print(e)
-        continue
+            finished = api(f"/competitions/{comp}/matches", {"status": "FINISHED"}).get("matches", [])
+            stats = build_stats(finished)
+            if not stats:
+                continue
+            for m in fixtures:
+                res = predict_match(stats, m["homeTeam"]["id"], m["awayTeam"]["id"])
+                if not res:
+                    continue
+                hn, an = m["homeTeam"]["name"], m["awayTeam"]["name"]
+                pct = round(res["prob"] * 100)
+                detail = (f"{hn} {res['over_h']}/{res['n_h']} + {an} {res['over_a']}/{res['n_a']} "
+                          f"recent games over 1.5 • expected goals {res['lam_h']:.2f}-{res['lam_a']:.2f}")
+                candidates.append({
+                    "id": m["id"], "match": f"{hn} vs {an}", "competition": m["competition"]["name"],
+                    "utcDate": m["utcDate"], "time": m["utcDate"], "status": m["status"],
+                    "market": "Over 1.5 Goals", "pick": "Over 1.5 Goals",
+                    "prob": pct, "confidence": pct, "percent": pct,
+                    "xg": round(res["lam_h"] + res["lam_a"], 2),
+                    "fairOdds": round(1 / res["prob"], 2),
+                    "formDetail": detail, "explanation": detail, "reason": detail,
+                    "_p": res["prob"], "result": "PENDING",
+                })
+        except Exception as e:
+            errors += 1
+            print(f"{comp} failed: {e}")
 
-matches=sorted(matches, key=lambda x: x['utcDate'])[:3]
+    if errors == len(COMPETITIONS):
+        sys.exit("All competitions failed - leaving picks.json untouched")
 
-with open('picks.json','w') as f:
-    json.dump({"date": today, "picks": matches}, f, indent=2)
+    good = sorted((c for c in candidates if c["_p"] >= MIN_PROB), key=lambda c: -c["_p"])[:MAX_PICKS]
+    for c in good:
+        del c["_p"]
+    good.sort(key=lambda c: c["utcDate"])
 
-# === ARCHIVE TO HISTORY ===
-import os
-try:
-    with open('history.json') as f:
-        hist = json.load(f)
-except:
-    hist = []
+    with open("picks.json", "w") as f:
+        json.dump({"date": today, "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                   "picks": good}, f, indent=2)
+    print(f"{len(candidates)} matches scored, {len(good)} picks saved")
 
-try:
-    with open('picks.json') as f:
-        current = json.load(f)
-    # Don't duplicate today's date
-    if not any(d['date'] == today for d in hist):
-        # Before adding today, try to load old picks from yesterday file if exists
-        pass
-except:
-    pass
 
-# If old picks.json exists and its date != today, archive it first (handled by workflow)
-# Now ensure history.json has at least yesterday manually fixed
-if len(hist) == 0 or hist[0]['date'] != '2026-10-27':
-    # Create 27th entry if missing
-    if not any(d['date']=='2026-10-27' for d in hist):
-        hist.insert(0, {
-            "date": "2026-10-27",
-            "picks": [
-                {"match": "US Sassuolo Calcio vs SS Lazio", "id": 0, "result": "WON", "finalScore": "2-6"},
-                {"match": "Torino FC vs Como 1907", "id": 0, "result": "WON", "finalScore": "1-3"},
-                {"match": "AS Roma vs Cagliari Calcio", "id": 0, "result": "WON", "finalScore": "4-2"}
-            ]
-        })
-
-with open('history.json','w') as f:
-    json.dump(hist, f, indent=2)
+if __name__ == "__main__":
+    main()
