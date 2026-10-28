@@ -1,7 +1,8 @@
 name: Daily Predictions
 on:
   schedule:
-    - cron: '0 7 * * *'  # 10AM EAT = 7AM UTC
+    - cron: '0 7 * * *'
+    - cron: '*/30 13-22 * * *'
   workflow_dispatch:
 jobs:
   update:
@@ -14,11 +15,18 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests
-      - run: python predict.py
+      - name: Morning picks
+        if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+        run: python predict.py
+        env:
+          FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
+      - name: Live update
+        if: github.event.schedule != '0 7 * * *' || github.event_name == 'workflow_dispatch'
+        run: python live.py
         env:
           FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
       - run: |
           git config user.name "bot"
           git config user.email "bot@bot.com"
-          git add picks.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update picks" && git push)
+          git add picks.json live.json history.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update" && git push)
