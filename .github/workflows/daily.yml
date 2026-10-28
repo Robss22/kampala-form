@@ -1,32 +1,46 @@
-name: Daily Predictions
+name: Smart Stats UG
 on:
   schedule:
-    - cron: '0 7 * * *'
-    - cron: '*/30 13-22 * * *'
+    - cron: '0 7 * * *'          # 10:00 EAT - build today's picks
+    - cron: '*/10 12-23 * * *'   # match hours - live scores + results
+    - cron: '30 0 * * *'         # after midnight - settle late games
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Rebuild picks even if today already has some (1 = yes)'
+        required: false
+        default: ''
+
+concurrency:
+  group: smart-stats
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests
+      - run: pip install -r requirements.txt
       - name: Morning picks
         if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
         run: python predict.py
         env:
           FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
-      - name: Live update
-        if: github.event.schedule != '0 7 * * *' || github.event_name == 'workflow_dispatch'
+          FORCE: ${{ inputs.force }}
+      - name: Live scores, results, history
         run: python live.py
         env:
           FOOTBALL_TOKEN: ${{ secrets.FOOTBALL_TOKEN }}
-      - run: |
+      - name: Commit
+        run: |
           git config user.name "bot"
-          git config user.email "bot@bot.com"
+          git config user.email "bot@users.noreply.github.com"
           git add picks.json live.json history.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update" && git push)
+          git diff --staged --quiet && exit 0
+          git commit -m "update"
+          git pull --rebase && git push
