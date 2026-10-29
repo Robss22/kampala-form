@@ -1,7 +1,18 @@
 {
   "558558": {
-    "status": "TIMED",
-    "score": {},
+    "status": "IN_PLAY",
+    "score": {
+      "winner": "DRAW",
+      "duration": "REGULAR",
+      "fullTime": {
+        "home": 0,
+        "away": 0
+      },
+      "halfTime": {
+        "home": null,
+        "away": null
+      }
+    },
     "minute": "",
     "utcDate": "2026-10-29T17:30:00Z"
   },
