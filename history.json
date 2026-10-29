@@ -10,7 +10,8 @@
         "market": "Over 1.5 Goals",
         "prob": 85,
         "fairOdds": 1.18,
-        "result": "PENDING"
+        "result": "WON",
+        "finalScore": "5-1"
       },
       {
         "id": 558551,
@@ -20,7 +21,8 @@
         "market": "Over 1.5 Goals",
         "prob": 87,
         "fairOdds": 1.15,
-        "result": "PENDING"
+        "result": "WON",
+        "finalScore": "2-2"
       }
     ]
   },

@@ -19,7 +19,8 @@
       "formDetail": "Frosinone Calcio 5/5 + US Lecce 5/5 recent games over 1.5 \u2022 expected goals 1.57-1.32",
       "explanation": "Frosinone Calcio 5/5 + US Lecce 5/5 recent games over 1.5 \u2022 expected goals 1.57-1.32",
       "reason": "Frosinone Calcio 5/5 + US Lecce 5/5 recent games over 1.5 \u2022 expected goals 1.57-1.32",
-      "result": "PENDING"
+      "result": "WON",
+      "finalScore": "5-1"
     },
     {
       "id": 558551,
@@ -38,7 +39,8 @@
       "formDetail": "ACF Fiorentina 5/5 + Atalanta BC 5/5 recent games over 1.5 \u2022 expected goals 1.44-1.61",
       "explanation": "ACF Fiorentina 5/5 + Atalanta BC 5/5 recent games over 1.5 \u2022 expected goals 1.44-1.61",
       "reason": "ACF Fiorentina 5/5 + Atalanta BC 5/5 recent games over 1.5 \u2022 expected goals 1.44-1.61",
-      "result": "PENDING"
+      "result": "WON",
+      "finalScore": "2-2"
     }
   ]
 }
