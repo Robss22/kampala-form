@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-29",
+    "picks": [
+      {
+        "id": 558558,
+        "match": "Frosinone Calcio vs US Lecce",
+        "competition": "Serie A",
+        "utcDate": "2026-10-29T17:30:00Z",
+        "market": "Over 1.5 Goals",
+        "prob": 85,
+        "fairOdds": 1.18,
+        "result": "PENDING"
+      },
+      {
+        "id": 558551,
+        "match": "ACF Fiorentina vs Atalanta BC",
+        "competition": "Serie A",
+        "utcDate": "2026-10-29T19:45:00Z",
+        "market": "Over 1.5 Goals",
+        "prob": 87,
+        "fairOdds": 1.15,
+        "result": "PENDING"
+      }
+    ]
+  },
+  {
     "date": "2026-10-28",
     "picks": [
       {
