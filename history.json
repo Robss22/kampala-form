@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-30",
+    "picks": [
+      {
+        "id": 565846,
+        "match": "SV 07 Elversberg vs 1. FSV Mainz 05",
+        "competition": "Bundesliga",
+        "utcDate": "2026-10-30T19:30:00Z",
+        "market": "Over 1.5 Goals",
+        "prob": 86,
+        "fairOdds": 1.16,
+        "result": "PENDING"
+      },
+      {
+        "id": 564737,
+        "match": "Villarreal CF vs RCD Espanyol de Barcelona",
+        "competition": "Primera Division",
+        "utcDate": "2026-10-30T20:00:00Z",
+        "market": "Over 1.5 Goals",
+        "prob": 75,
+        "fairOdds": 1.33,
+        "result": "PENDING"
+      }
+    ]
+  },
+  {
     "date": "2026-10-29",
     "picks": [
       {
