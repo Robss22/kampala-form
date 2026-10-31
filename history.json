@@ -21,7 +21,8 @@
         "market": "Over 1.5 Goals",
         "prob": 75,
         "fairOdds": 1.33,
-        "result": "PENDING"
+        "result": "LOST",
+        "finalScore": "0-1"
       }
     ]
   },
